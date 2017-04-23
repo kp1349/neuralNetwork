@@ -47,22 +47,25 @@ class NeuralNetwork:
 
 		outputs = []
 
-		totalError = 0.0
-		for i in range(len(input_data)):
-			outputs = self.Forward(input_data[i])
-			# Backward(output_data[i])
-			Error=0.0
-			for j in range(len(output_data[i])):
-				Error += abs(output_data[i][j] - outputs[j])
-			totalError += (Error / 3.0)
-		
-		print("Error: " + str(totalError / len(input_data))
+		for k in range(self.iteration):
+			totalError = 0.0
+			for i in range(len(input_data)):
+				outputs = self.Forward(input_data[i])
+				Error=0.0
+				for j in range(len(output_data[i])):
+					Error += abs(output_data[i][j] - outputs[j])
+				totalError += (Error / 3.0)
+				self.Backward(output_data[i])
+			print("Iteration "+str(k)+" Error: " + str(totalError / len(input_data)))
 
 	def Test(self, input_data, output_data): #josh
 		x=0
 
 	def Tanh(self, x):
 		return (math.exp(x)-math.exp(-x)) / (math.exp(-x)+math.exp(x))
+	
+	def dtanh(self, y):
+		return 4 / ((math.exp(-y) + math.exp(y))**2)
 
 	def Sigmoid(self, x):
 		return 1/(1+(math.exp(-x)))
@@ -91,7 +94,34 @@ class NeuralNetwork:
 		return self.output_act
 
 	def Backward(self, correct_values): #danny
-		x=0
+		#array of output changes
+		output_delta = [0.0]* self.output
+		for k in range(self.output):
+			output_data[k] = self.output[k]-self.correct_values[k]
+		
+		#array of hidden changes
+		hidden_delta = [0.0] * self.hidden
+		tot_error = 0.0
+		#hidden to input layer of Derivatives
+		for i in range(self.hidden):
+			error=0.0
+			for j in range(self.output):
+				error += output_delta[j] * self.weights_out[i][j]
+				hidden_delta[i] = self.dtanh(self.hidden_act[i])*error
+		
+		#updating weights for hidden weights
+		for m in range(self.hidden):
+			for n in range(self.output):
+				change = output_delta[n]*self.hidden_act[m]
+				self.weights_out[m][n] -= self.learning * change + self.old_change_out[m][n] * self.momentum
+				self.old_change_out[m][n] = change
+		
+		#updating weights for input weights
+		for s in range(self.input):
+			for t in range(self.hidden):
+				change = hidden_delta[t] * self.input_act[s]
+				self.weights_in[s][t] -= self.learning * change + self.old_change_in[s][t] * self.momentum
+				self.old_change_in[s][t] = change
 
 	def Error(outputs, correct_values): #danny
 		x=0
@@ -115,7 +145,7 @@ for line in lines:
 	# print outputs
 
 # new.Forward(inputs)
-new.Train(inputs, outputs))
+new.Train(inputs, outputs)
 
 # print(new.output_act)
 

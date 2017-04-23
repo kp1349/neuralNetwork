@@ -3,7 +3,15 @@ import random
 
 class NeuralNetwork:
 	def __init__(self, input, hidden, output, iteration, learning_rate, momentum, decay): #paul
-		x=0
+		self.input = input
+		self.hidden = hidden
+		self.output = output
+		self.iteration = iteration
+		self.learning = learning_rate
+		self.momentum = momentum
+		self.decay = decay
+
+		
 
 	def Train(self, data): #paul
 		x=0

@@ -47,27 +47,32 @@ class NeuralNetwork:
 	def Test(self, input_data, output_data): #josh
 		x=0
 
-	def tanh(x):
+	def Tanh(self, x):
 		return (math.exp(x)-math.exp(-x)) / (math.exp(-x)+math.exp(x))
 
-	def sigmoid(x):
+	def Sigmoid(self, x):
 		return 1/(1+(math.exp(-x)))
 
 	def Forward(self, input_data): #josh
 		for i in range(0, self.input):
-			self.input_act[i] == inputs[i]
+			# print(inputs[i])
+			self.input_act[i] = inputs[i]
 
 		for i in range(0, self.hidden):
 			hidsum = 0.0
 			for j in range(0, self.input):
+				# print(self.input_act[j])
+				# print(self.weights_in[j][i])
 				hidsum += self.input_act[j] * self.weights_in[j][i]
-			self.hidden_act[i] = tanh(hidsum)
+			self.hidden_act[i] = self.Tanh(hidsum)
+			# print(self.hidden_act[i])
+
 
 		for i in range(0, self.output):
 			outsum = 0.0
 			for j in range(0, self.hidden):
 				outsum += self.hidden_act[j] * self.weights_out[j][i]
-			self.output_act[i] = sigmoid(outsum)
+			self.output_act[i] = self.Sigmoid(outsum)
 
 	def Backward(self, correct_values): #danny
 		x=0
@@ -80,5 +85,16 @@ new = NeuralNetwork(4,3,3, 100, 0.5, 0.3, 0.01)
 # print(new.weights_out)
 # print(new.old_change_in)
 # print(new.old_change_out)
+
+with open('iris.train') as file:
+	lines = file.readlines()
+
+
+x=lines[0].split(',')
+inputs=[float(x[0]), float(x[1]), float(x[2]), float(x[3])]
+new.Forward(inputs)
+
+print(new.output_act)
+
 
 

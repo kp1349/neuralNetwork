@@ -19,15 +19,15 @@ class NeuralNetwork:
 		for i in range(0, input):
 			self.weights_in.append([])
 			for j in range(0, hidden):
-				# self.weights_in[i].append(random.uniform(0.0, 1.0))
-				self.weights_in[i].append(0.5)
+				self.weights_in[i].append(random.uniform(0.0, 1.0))
+				# self.weights_in[i].append(0.5)
 
 		self.weights_out = []
 		for i in range(0, hidden):
 			self.weights_out.append([])
 			for j in range(0, output):
-				# self.weights_out[i].append(random.uniform(0.0, 1.0))
-				self.weights_out[i].append(0.5)
+				self.weights_out[i].append(random.uniform(0.0, 1.0))
+				# self.weights_out[i].append(0.5)
 
 		self.old_change_in = []
 		for i in range(0, input):
@@ -48,6 +48,9 @@ class NeuralNetwork:
 		outputs = []
 
 		for k in range(self.iteration):
+			self.learning = self.learning * (self.learning / (self.learning + (self.learning * self.decay)))
+
+
 			totalError = 0.0
 			for i in range(len(input_data)):
 				outputs = self.Forward(input_data[i])
@@ -59,16 +62,20 @@ class NeuralNetwork:
 			print("Iteration "+str(k)+" Error: " + str(totalError / len(input_data)))
 
 	def Test(self, input_data, output_data): #josh
-		x=0
+		for i in range(len(input_data)):
+			print(str(output_data[i])+" --> "+str(self.Forward(input_data[i])))
 
 	def Tanh(self, x):
 		return (math.exp(x)-math.exp(-x)) / (math.exp(-x)+math.exp(x))
 	
-	def dtanh(self, y):
+	def dTanh(self, y):
 		return 4 / ((math.exp(-y) + math.exp(y))**2)
 
 	def Sigmoid(self, x):
 		return 1/(1+(math.exp(-x)))
+
+	def dSigmoid(self, y):
+		return (math.exp(y)) / ((math.exp(y) + 1)**2)
 
 	def Forward(self, input_data): #josh
 		for i in range(0, self.input):
@@ -95,19 +102,19 @@ class NeuralNetwork:
 
 	def Backward(self, correct_values): #danny
 		#array of output changes
-		output_delta = [0.0]* self.output
+		output_delta = [0.0] * self.output
 		for k in range(self.output):
-			output_data[k] = self.output[k]-self.correct_values[k]
+			output_delta[k] = (self.output_act[k] - correct_values[k]) * self.dSigmoid(self.output_act[k])
 		
 		#array of hidden changes
 		hidden_delta = [0.0] * self.hidden
-		tot_error = 0.0
+		# tot_error = 0.0
 		#hidden to input layer of Derivatives
 		for i in range(self.hidden):
 			error=0.0
 			for j in range(self.output):
 				error += output_delta[j] * self.weights_out[i][j]
-				hidden_delta[i] = self.dtanh(self.hidden_act[i])*error
+			hidden_delta[i] = self.dTanh(self.hidden_act[i]) * error
 		
 		#updating weights for hidden weights
 		for m in range(self.hidden):
@@ -126,7 +133,7 @@ class NeuralNetwork:
 	def Error(outputs, correct_values): #danny
 		x=0
 
-new = NeuralNetwork(4,3,3, 100, 0.5, 0.3, 0.01)
+new = NeuralNetwork(4,3,3, 400, 0.7, 0.3, 0.01)
 # print(new.weights_in)
 # print(new.weights_out)
 # print(new.old_change_in)
@@ -146,6 +153,7 @@ for line in lines:
 
 # new.Forward(inputs)
 new.Train(inputs, outputs)
+new.Test(inputs, outputs)
 
 # print(new.output_act)
 

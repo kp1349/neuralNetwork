@@ -30,26 +30,38 @@ class NeuralNetwork:
 		x=0
 
 	def Backward(self, correct_values): #danny
-		x=0
 		#array of output changes
-		output_delta = [0.0]* self.output
-		#output to hidden layer Derivatives
-		for k in range(self.output):
-			get_error = self.output[k]-self.correct_values[k]
-			output_delta[k] = get_error*dsigmoid(self.output[k])*self.hidden_act[k]
+		output_delta = self.Error(self,correct_values)
 		
 		#array of hidden changes
 		hidden_delta = [0.0]*self.hidden
 		tot_error = 0.0
 		#hidden to input layer of Derivatives
 		for i in range(self.hidden):
-			error=0.0;
+			error=0.0
 			for j in range(self.output)
 				error += output_delta[j] * weights_out[i][j]
-				hidden_delta[i] = dtanh(self.hidden[i])*self.input_act
-
-
+				hidden_delta[i] = self.dtanh(self.hidden[i])*error
 		
+		#updating weights for hidden weights
+		 for m in range(self.hidden):
+            for n in range(self.output):
+                change = output_delta[n]*self.hidden[m]
+				self.weights_out[m][n] -= self.learning_rate * change + self.old_change_out[m][n] * self.momentum
+                self.old_change_out[m][n] = change
+		
+		#updating weights for input weights
+		for s in range(self.input):
+            for t in range(self.hidden):
+                change = hidden_delta[t] * self.input_act[s]
+                self.weights_in[s][t] -= self.learning_rate * change + self.old_change_in[s][t] * self.momentum
+                self.old_change_in[s][t] = change
+
 
 	def Error(outputs, correct_values): #danny
-		x=0
+		output_delta = [0.0]* self.output
+		for k in range(self.output):
+			get_error = self.output[k]-self.correct_values[k]
+		
+		return output_delta
+		

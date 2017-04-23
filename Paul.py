@@ -42,7 +42,21 @@ class NeuralNetwork:
 				self.old_change_out[i].append(0.0)
 
 	def Train(self, input_data, output_data): #paul
-		x=0
+		if (len(input_data) != len(output_data)):
+			print("input and output aren't the same size")
+
+		outputs = []
+
+		totalError = 0.0
+		for i in range(len(input_data)):
+			outputs = self.Forward(input_data[i])
+			# Backward(output_data[i])
+			Error=0.0
+			for j in range(len(output_data[i])):
+				Error += abs(output_data[i][j] - outputs[j])
+			totalError += (Error / 3.0)
+		
+		print("Error: " + str(totalError / len(input_data))
 
 	def Test(self, input_data, output_data): #josh
 		x=0
@@ -56,7 +70,7 @@ class NeuralNetwork:
 	def Forward(self, input_data): #josh
 		for i in range(0, self.input):
 			# print(inputs[i])
-			self.input_act[i] = inputs[i]
+			self.input_act[i] = input_data[i]
 
 		for i in range(0, self.hidden):
 			hidsum = 0.0
@@ -74,6 +88,8 @@ class NeuralNetwork:
 				outsum += self.hidden_act[j] * self.weights_out[j][i]
 			self.output_act[i] = self.Sigmoid(outsum)
 
+		return self.output_act
+
 	def Backward(self, correct_values): #danny
 		x=0
 
@@ -89,12 +105,19 @@ new = NeuralNetwork(4,3,3, 100, 0.5, 0.3, 0.01)
 with open('iris.train') as file:
 	lines = file.readlines()
 
+inputs=[]
+outputs=[]
 
-x=lines[0].split(',')
-inputs=[float(x[0]), float(x[1]), float(x[2]), float(x[3])]
-new.Forward(inputs)
+for line in lines:
+	x=line.split(',')
+	inputs.append([float(x[0]), float(x[1]), float(x[2]), float(x[3])])
+	outputs.append([float(x[4]), float(x[5]), float(x[6])])
+	# print outputs
 
-print(new.output_act)
+# new.Forward(inputs)
+new.Train(inputs, outputs))
+
+# print(new.output_act)
 
 
 

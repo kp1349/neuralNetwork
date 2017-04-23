@@ -11,40 +11,38 @@ class NeuralNetwork:
 		self.momentum = momentum
 		self.decay = decay
 
-		input_act = [0.0] * input
-		hidden_act = [0.0] * hidden
-		output_act = [0.0] * output
+		self.input_act = [0.0] * input
+		self.hidden_act = [0.0] * hidden
+		self.output_act = [0.0] * output
 
-		weights_in = []
+		self.weights_in = []
 		for i in range(0, input):
-			weights_in.append([])
+			self.weights_in.append([])
 			for j in range(0, hidden):
-				weights_in[i].append(0.0)
+				self.weights_in[i].append(random.uniform(0.0, 1.0))
 
-		weights_out = []
+		self.weights_out = []
 		for i in range(0, hidden):
-			weights_out.append([])
+			self.weights_out.append([])
 			for j in range(0, output):
-				weights_out[i].append(0.0)
+				self.weights_out[i].append(random.uniform(0.0, 1.0))
 
-		old_change_in = []
+		self.old_change_in = []
 		for i in range(0, input):
-			old_change_in.append([])
+			self.old_change_in.append([])
 			for j in range(0, hidden):
-				old_change_in[i].append(0.0)
+				self.old_change_in[i].append(0.0)
 
-		old_change_out = []
+		self.old_change_out = []
 		for i in range(0, hidden):
-			old_change_out.append([])
+			self.old_change_out.append([])
 			for j in range(0, output):
-				old_change_out[i].append(0.0)
+				self.old_change_out[i].append(0.0)
 
-
-
-	def Train(self, data): #paul
+	def Train(self, input_data, output_data): #paul
 		x=0
 
-	def Test(self, data): #josh
+	def Test(self, input_data, output_data): #josh
 		x=0
 
 	def Forward(self, input_data): #josh
@@ -55,3 +53,9 @@ class NeuralNetwork:
 
 	def Error(outputs, correct_values): #danny
 		x=0
+
+new = NeuralNetwork(4,3,3, 100, 0.5, 0.3, 0.01)
+# print(new.weights_in)
+# print(new.weights_out)
+# print(new.old_change_in)
+# print(new.old_change_out)

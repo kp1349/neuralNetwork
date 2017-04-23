@@ -1,0 +1,10 @@
+GIT OPERATIONS
+
+git init
+git status
+
+git add '...'.py
+git commit -m 'random_msg'
+git push origin master
+
+git pull origin master

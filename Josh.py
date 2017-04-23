@@ -1,3 +1,5 @@
+import math
+import random
 
 class NeuralNetwork:
 	def __init__(self, input, hidden, output, iteration, learning_rate, momentum, decay): #paul

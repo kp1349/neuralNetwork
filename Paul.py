@@ -76,9 +76,9 @@ class NeuralNetwork:
 		x=0
 
 new = NeuralNetwork(4,3,3, 100, 0.5, 0.3, 0.01)
-print(new.weights_in)
-print(new.weights_out)
-print(new.old_change_in)
-print(new.old_change_out)
+# print(new.weights_in)
+# print(new.weights_out)
+# print(new.old_change_in)
+# print(new.old_change_out)
 
 

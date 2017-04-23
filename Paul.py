@@ -11,7 +11,35 @@ class NeuralNetwork:
 		self.momentum = momentum
 		self.decay = decay
 
-		
+		input_act = [0.0] * input
+		hidden_act = [0.0] * hidden
+		output_act = [0.0] * output
+
+		weights_in = []
+		for i in range(0, input):
+			weights_in.append([])
+			for j in range(0, hidden):
+				weights_in[i].append(0.0)
+
+		weights_out = []
+		for i in range(0, hidden):
+			weights_out.append([])
+			for j in range(0, output):
+				weights_out[i].append(0.0)
+
+		old_change_in = []
+		for i in range(0, input):
+			old_change_in.append([])
+			for j in range(0, hidden):
+				old_change_in[i].append(0.0)
+
+		old_change_out = []
+		for i in range(0, hidden):
+			old_change_out.append([])
+			for j in range(0, output):
+				old_change_out[i].append(0.0)
+
+
 
 	def Train(self, data): #paul
 		x=0

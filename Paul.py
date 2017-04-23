@@ -19,13 +19,15 @@ class NeuralNetwork:
 		for i in range(0, input):
 			self.weights_in.append([])
 			for j in range(0, hidden):
-				self.weights_in[i].append(random.uniform(0.0, 1.0))
+				# self.weights_in[i].append(random.uniform(0.0, 1.0))
+				self.weights_in[i].append(0.5)
 
 		self.weights_out = []
 		for i in range(0, hidden):
 			self.weights_out.append([])
 			for j in range(0, output):
-				self.weights_out[i].append(random.uniform(0.0, 1.0))
+				# self.weights_out[i].append(random.uniform(0.0, 1.0))
+				self.weights_out[i].append(0.5)
 
 		self.old_change_in = []
 		for i in range(0, input):
@@ -45,8 +47,27 @@ class NeuralNetwork:
 	def Test(self, input_data, output_data): #josh
 		x=0
 
+	def tanh(x):
+		return (math.exp(x)-math.exp(-x)) / (math.exp(-x)+math.exp(x))
+
+	def sigmoid(x):
+		return 1/(1+(math.exp(-x)))
+
 	def Forward(self, input_data): #josh
-		x=0
+		for i in range(0, self.input):
+			self.input_act[i] == inputs[i]
+
+		for i in range(0, self.hidden):
+			hidsum = 0.0
+			for j in range(0, self.input):
+				hidsum += self.input_act[j] * self.weights_in[j][i]
+			self.hidden_act[i] = tanh(hidsum)
+
+		for i in range(0, self.output):
+			outsum = 0.0
+			for j in range(0, self.hidden):
+				outsum += self.hidden_act[j] * self.weights_out[j][i]
+			self.output_act[i] = sigmoid(outsum)
 
 	def Backward(self, correct_values): #danny
 		x=0
@@ -55,7 +76,9 @@ class NeuralNetwork:
 		x=0
 
 new = NeuralNetwork(4,3,3, 100, 0.5, 0.3, 0.01)
-# print(new.weights_in)
-# print(new.weights_out)
-# print(new.old_change_in)
-# print(new.old_change_out)
+print(new.weights_in)
+print(new.weights_out)
+print(new.old_change_in)
+print(new.old_change_out)
+
+

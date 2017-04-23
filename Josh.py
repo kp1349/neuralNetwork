@@ -12,7 +12,7 @@ class NeuralNetwork:
 		return (math.exp(x)-math.exp(-x)) / (math.exp(-x)+math.exp(x))
 
 	def sigmoid(x):
-		return 1/(1+(math.exp(-x))
+		return 1/(1+(math.exp(-x)))
 
 	def Forward(self, input_data): #josh
 		for i in range(0, self.input):

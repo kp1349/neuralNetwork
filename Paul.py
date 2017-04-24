@@ -49,15 +49,13 @@ class NeuralNetwork:
 
 		for k in range(self.iteration):
 			self.learning = self.learning * (self.learning / (self.learning + (self.learning * self.decay)))
-
-
 			totalError = 0.0
 			for i in range(len(input_data)):
 				outputs = self.Forward(input_data[i])
 				Error=0.0
-				for j in range(len(output_data[i])):
+				for j in range(2,3):
 					Error += abs(output_data[i][j] - outputs[j])
-				totalError += (Error / 3.0)
+				totalError += (Error / 1.0)
 				self.Backward(output_data[i])
 			print("Iteration "+str(k)+" Error: " + str(totalError / len(input_data)))
 
@@ -92,9 +90,9 @@ class NeuralNetwork:
 			# print(self.hidden_act[i])
 
 
-		for i in range(0, self.output):
+		for i in range(self.output):
 			outsum = 0.0
-			for j in range(0, self.hidden):
+			for j in range(self.hidden):
 				outsum += self.hidden_act[j] * self.weights_out[j][i]
 			self.output_act[i] = self.Sigmoid(outsum)
 
@@ -104,7 +102,10 @@ class NeuralNetwork:
 		#array of output changes
 		output_delta = [0.0] * self.output
 		for k in range(self.output):
-			output_delta[k] = (self.output_act[k] - correct_values[k]) * self.dSigmoid(self.output_act[k])
+			error = -(correct_values[k] - self.output_act[k])
+			output_delta[k] = self.dSigmoid(self.output_act[k]) * error
+			# output_delta[k] = (self.output_act[k] - correct_values[k]) * self.dSigmoid(self.output_act[k])
+		# print(output_delta)
 		
 		#array of hidden changes
 		hidden_delta = [0.0] * self.hidden
@@ -133,7 +134,7 @@ class NeuralNetwork:
 	def Error(outputs, correct_values): #danny
 		x=0
 
-new = NeuralNetwork(4,3,3, 400, 0.7, 0.3, 0.01)
+new = NeuralNetwork(4,4,3, 400, 0.7, 0.3, 0.01)
 # print(new.weights_in)
 # print(new.weights_out)
 # print(new.old_change_in)
@@ -151,8 +152,19 @@ for line in lines:
 	outputs.append([float(x[4]), float(x[5]), float(x[6])])
 	# print outputs
 
-# new.Forward(inputs)
 new.Train(inputs, outputs)
+
+with open('iris.test') as file:
+	lines = file.readlines()
+
+for line in lines:
+	x=line.split(',')
+	inputs.append([float(x[0]), float(x[1]), float(x[2]), float(x[3])])
+	outputs.append([float(x[4]), float(x[5]), float(x[6])])
+	# print outputs
+
+# new.Forward(inputs)
+
 new.Test(inputs, outputs)
 
 # print(new.output_act)

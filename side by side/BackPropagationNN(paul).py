@@ -14,16 +14,16 @@ def sigmoid(x):
 # def dsigmoid(y):
 #     return y * (1.0 - y)
 def dsigmoid(y):
-    return np.exp(y) / (np.exp(y) + 1)**2
+    return np.exp(y)/(np.exp(y)+1)**2
 
 
 # using tanh over logistic sigmoid is recommended   
 def tanh(x):
-    return (np.exp(x) - np.exp(-x)) / (np.exp(-x) + np.exp(x))
+    return math.tanh(x)
     
 # derivative for tanh sigmoid
 def dtanh(y):
-    return 4 / (np.exp(-y) + np.exp(y))**2
+    return 1 - y*y
 
 class MLP_NeuralNetwork(object):
     """
@@ -62,15 +62,18 @@ class MLP_NeuralNetwork(object):
 
         # create randomized weights
         # use scheme from 'efficient backprop to initialize weights
-        input_range = 1.0 #/ self.input ** (1/2)
-        output_range = 1.0 #/ self.hidden ** (1/2)
+        input_range = 1.0 / self.input ** (1/2)
+        output_range = 1.0 / self.hidden ** (1/2)
         # self.wi = np.random.normal(loc = 0, scale = input_range, size = (self.input, self.hidden))
         # self.wo = np.random.normal(loc = 0, scale = output_range, size = (self.hidden, self.output))
-        # self.wi = np.random.rand(self.input, self.hidden)
-        # self.wo = np.random.rand(self.hidden, self.output)
-        self.wi = np.ones((self.input, self.hidden)) * 0.5
-        self.wo = np.ones((self.hidden, self.output)) * 0.5
         
+        # self.wi = np.ones((self.input, self.hidden)) * 0.5
+        # self.wo = np.ones((self.hidden, self.output)) * 0.5
+
+        self.wi = np.random.rand(self.input, self.hidden) #* 0.5
+        self.wo = np.random.rand(self.hidden, self.output) #* 0.5
+
+
         # create arrays of 0 for changes
         # this is essentially an array of temporary values that gets updated at each iteration
         # based on how much the weights need to change in the following iteration
@@ -90,16 +93,13 @@ class MLP_NeuralNetwork(object):
             raise ValueError('Wrong number of inputs you silly goose!')
 
         # input activations
-        for i in range(self.input-1): # -1 is to avoid the bias
-            print(str(inputs[i]))
+        for i in range(self.input -1): # -1 is to avoid the bias
             self.ai[i] = inputs[i]
-            print(str(self.ai[i]))
-
 
         # hidden activations
         for j in range(self.hidden):
             sum = 0.0
-            for i in range(self.input-1):
+            for i in range(self.input):
                 sum += self.ai[i] * self.wi[i][j]
             self.ah[j] = tanh(sum)
 
@@ -135,39 +135,30 @@ class MLP_NeuralNetwork(object):
         output_deltas = [0.0] * self.output
         for k in range(self.output):
             error = -(targets[k] - self.ao[k])
-            print("self.ao["+str(k)+"]: "+str(self.ao[k]))
             output_deltas[k] = dsigmoid(self.ao[k]) * error
 
         # calculate error terms for hidden
         # delta tells you which direction to change the weights
         hidden_deltas = [0.0] * self.hidden
-        for j in range(self.hidden-1):
+        for j in range(self.hidden):
             error = 0.0
             for k in range(self.output):
                 error += output_deltas[k] * self.wo[j][k]
-            hidden_deltas[j] = dtanh(self.ah[j]) * error #changed 'dtanh' to 'dsigmoid'
+            hidden_deltas[j] = dtanh(self.ah[j]) * error
 
         # update the weights connecting hidden to output
         for j in range(self.hidden):
             for k in range(self.output):
                 change = output_deltas[k] * self.ah[j]
-                # print("output_deltas: "+str(output_deltas[k])+" and self.ah: "+str(self.ah[j]))
-                # print("change for wo["+str(j)+"]["+str(k)+"] is "+str(change))
                 self.wo[j][k] -= self.learning_rate * change + self.co[j][k] * self.momentum
                 self.co[j][k] = change
 
         # update the weights connecting input to hidden
         for i in range(self.input):
-            for j in range(self.hidden-1):
+            for j in range(self.hidden):
                 change = hidden_deltas[j] * self.ai[i]
-                # print("change for wi["+str(i)+"]["+str(j)+"] is "+str(change))
                 self.wi[i][j] -= self.learning_rate * change + self.ci[i][j] * self.momentum
                 self.ci[i][j] = change
-
-        # print(self.wi)
-        # print("\n")
-        # print(self.wo)
-        # print("\n=========\n")
 
         # calculate error
         error = 0.0
@@ -185,23 +176,18 @@ class MLP_NeuralNetwork(object):
 
     def train(self, patterns):
         # N: learning rate
-        # for i in range(self.iterations):
-        for i in range(1):
+        for i in range(self.iterations):
             error = 0.0
             random.shuffle(patterns)
-            for k in range(1):
-                inputs = patterns[k][0]
-                targets = patterns[k][1]
-            # for p in patterns:
-            #     inputs = p[0]
-            #     targets = p[1]
+            for p in patterns:
+                inputs = p[0]
+                targets = p[1]
                 self.feedForward(inputs)
                 error += self.backPropagate(targets)
             with open('error.txt', 'a') as errorfile:
                 errorfile.write(str(error) + '\n')
                 errorfile.close()
-            # if i % 10 == 0:
-            if i % 1 == 0:
+            if i % 10 == 0:
                 print('error %-.5f' % error)
             # learning rate decay
             self.learning_rate = self.learning_rate * (self.learning_rate / (self.learning_rate + (self.learning_rate * self.rate_decay)))
@@ -227,13 +213,13 @@ def demo():
         #y[y == 0] = -1 # if you are using a tanh transfer function make the 0 into -1
         #y[y == 1] = .90 # try values that won't saturate tanh
         
-        data = data[:, 0:4] # x data
+        data = data[:,0:4] # x data
         #data = data - data.mean(axis = 1)
-        # data -= data.min() # scale the data so values are between 0 and 1
-        # data /= data.max() # scale
+        data -= data.min() # scale the data so values are between 0 and 1
+        data /= data.max() # scale
         
         out = []
-        # print data.shape
+        print data.shape
 
         # populate the tuple list with the data
         for i in range(data.shape[0]):
@@ -246,20 +232,16 @@ def demo():
 
     Y = load_data('iris.test')
 
-    # print X[9] # make sure the data looks right
+    print X[9] # make sure the data looks right
 
-    NN = MLP_NeuralNetwork(4, 3, 3, iterations = 200, learning_rate = 0.5, momentum = 0.3, rate_decay = 0.0)
-
-    print(NN.wi)
-    print("\n")
-    print(NN.wo)
-    print("\n==========\n")
+    NN = MLP_NeuralNetwork(4, 3, 3, iterations = 100, learning_rate = 0.5, momentum = 0.3, rate_decay = 0.01)
 
     NN.train(X)
-    # NN.test(Y)
+    NN.test(Y)
 
-    # print(NN.wi)
-    # print("\n\n")
-    # print(NN.wo)
+    print(NN.wi)
+    print("\n\n")
+    print(NN.wo)
+
 if __name__ == '__main__':
     demo()

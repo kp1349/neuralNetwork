@@ -3,7 +3,7 @@ import random
 
 class NeuralNetwork:
 	def __init__(self, input, hidden, output, iteration, learning_rate, momentum, decay): #paul
-		self.input = input + 1
+		self.input = input
 		self.hidden = hidden
 		self.output = output
 		self.iteration = iteration
@@ -11,34 +11,34 @@ class NeuralNetwork:
 		self.momentum = momentum
 		self.decay = decay
 
-		self.input_act = [1.0] * self.input
-		self.hidden_act = [1.0] * self.hidden
-		self.output_act = [1.0] * self.output
+		self.input_act = [0.0] * input
+		self.hidden_act = [0.0] * hidden
+		self.output_act = [0.0] * output
 
 		self.weights_in = []
-		for i in range(self.input):
+		for i in range(0, input):
 			self.weights_in.append([])
-			for j in range(self.hidden):
+			for j in range(0, hidden):
 				self.weights_in[i].append(random.uniform(0.0, 1.0))
 				# self.weights_in[i].append(0.5)
 
 		self.weights_out = []
-		for i in range(self.hidden):
+		for i in range(0, hidden):
 			self.weights_out.append([])
-			for j in range(self.output):
+			for j in range(0, output):
 				self.weights_out[i].append(random.uniform(0.0, 1.0))
 				# self.weights_out[i].append(0.5)
 
 		self.old_change_in = []
-		for i in range(self.input):
+		for i in range(0, input):
 			self.old_change_in.append([])
-			for j in range(self.hidden):
+			for j in range(0, hidden):
 				self.old_change_in[i].append(0.0)
 
 		self.old_change_out = []
-		for i in range(self.hidden):
+		for i in range(0, hidden):
 			self.old_change_out.append([])
-			for j in range(self.output):
+			for j in range(0, output):
 				self.old_change_out[i].append(0.0)
 
 	def Train(self, input_data, output_data): #paul
@@ -48,11 +48,9 @@ class NeuralNetwork:
 		outputs = []
 
 		for k in range(self.iteration):
-		# for k in range(1):
 			self.learning = self.learning * (self.learning / (self.learning + (self.learning * self.decay)))
 			totalError = 0.0
 			for i in range(len(input_data)):
-			# for i in range(1):
 				outputs = self.Forward(input_data[i])
 				Error=0.0
 				for j in range(2,3):
@@ -78,10 +76,9 @@ class NeuralNetwork:
 		return (math.exp(y)) / ((math.exp(y) + 1)**2)
 
 	def Forward(self, input_data): #josh
-		for i in range(0, self.input-1):
-			# print(str(input_data[i]))
+		for i in range(0, self.input):
+			# print(inputs[i])
 			self.input_act[i] = input_data[i]
-			# print(str(self.input_act[i]))
 
 		for i in range(0, self.hidden):
 			hidsum = 0.0
@@ -99,8 +96,6 @@ class NeuralNetwork:
 				outsum += self.hidden_act[j] * self.weights_out[j][i]
 			self.output_act[i] = self.Sigmoid(outsum)
 
-		# print()
-
 		return self.output_act
 
 	def Backward(self, correct_values): #danny
@@ -108,9 +103,8 @@ class NeuralNetwork:
 		output_delta = [0.0] * self.output
 		for k in range(self.output):
 			error = -(correct_values[k] - self.output_act[k])
-			# print("self.output_act["+str(k)+"]: "+str(self.output_act[k]))
 			output_delta[k] = self.dSigmoid(self.output_act[k]) * error
-			output_delta[k] = (self.output_act[k] - correct_values[k]) * self.dSigmoid(self.output_act[k])
+			# output_delta[k] = (self.output_act[k] - correct_values[k]) * self.dSigmoid(self.output_act[k])
 		# print(output_delta)
 		
 		#array of hidden changes
@@ -127,8 +121,6 @@ class NeuralNetwork:
 		for m in range(self.hidden):
 			for n in range(self.output):
 				change = output_delta[n]*self.hidden_act[m]
-				# print("output_deltas: "+str(output_delta[n])+" and self.ah: "+str(self.hidden_act[m]))
-				# print("change for weights_out["+str(m)+"]["+str(n)+"] is "+str(change))
 				self.weights_out[m][n] -= self.learning * change + self.old_change_out[m][n] * self.momentum
 				self.old_change_out[m][n] = change
 		
@@ -136,24 +128,13 @@ class NeuralNetwork:
 		for s in range(self.input):
 			for t in range(self.hidden):
 				change = hidden_delta[t] * self.input_act[s]
-				# print("change for weights_in["+str(s)+"]["+str(t)+"] is "+str(change))
 				self.weights_in[s][t] -= self.learning * change + self.old_change_in[s][t] * self.momentum
 				self.old_change_in[s][t] = change
-
-		# self.PrintWeights()
 
 	def Error(outputs, correct_values): #danny
 		x=0
 
-	def PrintWeights(self):
-		for weight in self.weights_in:
-			print(weight)
-		print("\n")
-		for weight in self.weights_out:
-			print(weight)
-		print("\n===========\n")
-
-new = NeuralNetwork(4,3,3, 200, 0.5, 0.3, 0.01)
+new = NeuralNetwork(4,4,3, 200, 0.5, 0.3, 0.0)
 # print(new.weights_in)
 # print(new.weights_out)
 # print(new.old_change_in)
@@ -171,7 +152,6 @@ for line in lines:
 	outputs.append([float(x[4]), float(x[5]), float(x[6])])
 	# print outputs
 
-# new.PrintWeights()
 new.Train(inputs, outputs)
 
 with open('iris.test') as file:

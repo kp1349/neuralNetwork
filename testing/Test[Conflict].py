@@ -1,15 +1,17 @@
-# PROGRAMMING DONE BY KOUSHIK PAUL, DANNY WU, AND JAI SHENG FU
-# SCROLL DOWN TO THE BOTTOM TO SEE INSTRUCTIONS
+# CODE WRITTEN BY: KOUSHIK PAUL, JAI SHENG FU, DANNY WU
+# SCROLL ALL THE WAY TO THE BOTTOM TO SEE INSTRUCTIONS
+
 import math
 import random
 
 TRAINPERCENTAGE = 0.8
-THRESHOLD = 0.33
-BIAS = 1
+THRESHOLD = 0.1
+NUM_OF_BIAS_NODES = 1
 
 class NeuralNetwork:
-	def __init__(self, input, hidden, output, iteration, learning_rate, momentum, decay):
-		self.input = input + BIAS
+	def __init__(self, input, hidden, output, iteration, learning_rate, momentum, decay): #paul
+		self.bias = NUM_OF_BIAS_NODES
+		self.input = input + self.bias
 		self.hidden = hidden
 		self.output = output
 		self.iteration = iteration
@@ -45,7 +47,7 @@ class NeuralNetwork:
 			for j in range(self.output):
 				self.old_change_out[i].append(0.0)
 
-	def Train(self, input_data, output_data):
+	def Train(self, input_data, output_data): #paul
 		if (len(input_data) != len(output_data)):
 			print("input and output aren't the same size")
 			print("input: "+str(len(input_data)))
@@ -65,7 +67,7 @@ class NeuralNetwork:
 			print("Iteration "+str(k+1)+" Error: " + str(totalError / len(input_data)))
 			self.learning = self.learning * (self.learning / (self.learning + (self.learning * self.decay))) #update the learning rate before each cycle
 
-	def Train_debug(self, input_data, output_data):
+	def Train_debug(self, input_data, output_data): #paul
 		if (len(input_data) != len(output_data)):
 			print("input and output aren't the same size")
 
@@ -84,21 +86,26 @@ class NeuralNetwork:
 						realError += abs(output_data[i][j] - outputs[j])
 						possibleError += 1
 					self.Backward(output_data[i])
+				# print("Iteration "+str(k)+" Error: " + str(totalError / len(input_data)))
 				outfile.write(str(k+1)+"\t"+str(caclculatedError)+"\t"+str(realError/possibleError)+"\n")
+				# print(str(Error/possibleError))
 				self.learning = self.learning * (self.learning / (self.learning + (self.learning * self.decay)))
 
-	def Test(self, input_data, output_data):
+	def Test(self, input_data, output_data): #josh
 		for i in range(len(input_data)):
 			print(str(output_data[i])+" --> "+str(self.Forward(input_data[i])))
 
-	def Test_debug(self, input_data, output_data):
+	def Test_debug(self, input_data, output_data): #josh
+		# Error = 0.0
 		max_value = 0.0
 		min_value = 1.0
 		max_ndx = 0
 		min_ndx = 0
+
 		totalError = 0.0
 
 		outliers = []
+
 		lines = []
 		for i in range(len(input_data)):
 			lines.append(str(i)+": "+str(output_data[i])+" --> "+str(self.Forward(input_data[i])))
@@ -141,15 +148,18 @@ class NeuralNetwork:
 		return (math.exp(y)) / ((math.exp(y) + 1)**2)
 
 	def Forward(self, input_data):
-		for i in range(0, self.input-BIAS):
+		# INPUT NODES
+		for i in range(0, self.input - self.bias):
 			self.input_act[i] = input_data[i]
 
+		# HIDDEN LAYER NODES
 		for i in range(0, self.hidden):
 			hidsum = 0.0
 			for j in range(0, self.input):
 				hidsum += self.input_act[j] * self.weights_in[j][i]
 			self.hidden_act[i] = self.Tanh(hidsum)
 
+		# OUTPUT LAYER NODES
 		for i in range(self.output):
 			outsum = 0.0
 			for j in range(self.hidden):
@@ -159,33 +169,30 @@ class NeuralNetwork:
 		return self.output_act
 
 	def Backward(self, correct_values):
-		#array of output changes
-		output_delta = [0.0] * self.output
-		for k in range(self.output):
+		# ARRAY OF DELTAS FOR SECOND LAYER WEIGHTS
+		output_delta = [0.0] * self.output 
+		for k in range(0, self.output):
 			output_delta[k] = (self.output_act[k] - correct_values[k]) * self.derivativeOfSigmoid(self.output_act[k])
 		
-		#array of hidden changes
+		# ARRAY OF DELTAS FOR FIRST LAYER WIEGHTS
 		hidden_delta = [0.0] * self.hidden
-		for i in range(self.hidden):
+		for i in range(0, self.hidden):
 			error=0.0
-			for j in range(self.output):
-				error += output_delta[j] * self.weights_out[i][j]
-			hidden_delta[i] = self.derivativeOfTanh(self.hidden_act[i]) * error
+			for j in range(0, self.output):
+				error += output_delta[j] * self.weights_out[i][j] # PARTS 1 AND 3 OF DERIVATIVE FORMULA
+			hidden_delta[i] = self.derivativeOfTanh(self.hidden_act[i]) * error # PART 2 ADDED
 		
 		#updating weights for hidden weights
-		for m in range(self.hidden):
-			for n in range(self.output):
+		for m in range(0, self.hidden):
+			for n in range(0, self.output):
 				self.weights_out[m][n] -= self.learning * output_delta[n] * self.hidden_act[m] + self.old_change_out[m][n] * self.momentum
 				self.old_change_out[m][n] = output_delta[n] * self.hidden_act[m]
 		
 		#updating weights for input weights
-		for s in range(self.input):
-			for t in range(self.hidden):
+		for s in range(0, self.input):
+			for t in range(0, self.hidden):
 				self.weights_in[s][t] -= self.learning * hidden_delta[t] * self.input_act[s] + self.old_change_in[s][t] * self.momentum
 				self.old_change_in[s][t] = hidden_delta[t] * self.input_act[s]
-
-	def Error(outputs, correct_values):
-		x=0
 
 	def PrintWeights(self):
 		for weight in self.weights_in:
@@ -235,7 +242,7 @@ def IrisData(filename, input_start, input_end, output):
 
 	test_inputs = data[int(len(data) * TRAINPERCENTAGE): len(data)]
 	test_outputs = classification[int(len(classification) * TRAINPERCENTAGE): len(classification)]
-	net = NeuralNetwork(4,10,3, 500, 0.6, 0.3, 0.001)
+	net = NeuralNetwork(4,10,3, 200, 0.6, 0.3, 0.001)
 
 	net.Train(train_inputs, train_outputs)
 
@@ -392,11 +399,8 @@ def HeartDiseaseData(filename, input_start, input_end, output):
 
 	net.Test_debug(test_inputs, test_outputs)
 
-
-# ============HOW TO RUN==========================
-# UNCOMMENT ANY AND SEE THEM RUNNING:
-
-IrisData("iris.data.txt",0, 4, 4) # WORKS
-# WineData("wine.data.txt", 1, 13, 0) # WORKS
-# BreastCancerWisconsinData("breast-cancer-wisconsin.data.txt", 1, 10, 10) # WORKS
-# HeartDiseaseData("processed.cleveland.data.txt", 0,13,13) # DOESN'T WORK
+# UNCOMMENT TO RUN:
+IrisData("iris.data.txt",0, 4, 4)
+# WineData("wine.data.txt", 1, 13, 0)
+# BreastCancerWisconsinData("breast-cancer-wisconsin.data.txt", 1, 10, 10)
+# HeartDiseaseData("processed.cleveland.data.txt", 0,13,13)
